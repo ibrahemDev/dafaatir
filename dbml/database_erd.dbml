@@ -1,0 +1,151 @@
+
+
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+
+
+
+// --- User Management ---
+
+Table users {
+  id integer [primary key] // Unique identifier for each user.
+  display_name varchar(255) [not null] // User's publicly displayed name.
+  email varchar(255)  [not null, unique] // User's email address (used for login and identification).
+  password_hash char(64) [not null]  // Securely stored hash of the user's password.
+  email_verified bool [default: false] // Indicates whether the user has verified their email address.
+  created_at timestamp [default: `now()`] // Timestamp of user account creation.
+}
+
+// --- Roles and Permissions ---
+
+// These tables manage user roles and permissions for access control.
+
+Table roles {
+  id integer [primary key] // Unique identifier for each role.
+  name varchar(255) [not null, unique] // Name of the role (e.g., "admin", "user").
+  description text // Description of the role and its associated privileges.
+}
+
+Table permissions {
+  id integer [primary key] // Unique identifier for each permission.
+  name varchar(255) [not null, unique] // Name of the permission (e.g., "create_file", "edit_file").
+  description text // Description of the specific action allowed by this permission.
+}
+
+// Connects users to their assigned roles.
+Table user_roles {
+  user_id integer [ref: > users.id]
+  role_id integer [ref: > roles.id]
+  indexes {
+    (user_id, role_id) [unique] // Enforces a unique combination of user and role.
+  }
+}
+
+// Assigns specific permissions to each role.
+Table role_permissions {
+  role_id integer [ref: > roles.id]
+  permission_id integer [ref: > permissions.id]
+  indexes {
+    (role_id, permission_id) [unique] // Prevents redundant permission assignments for a role.
+  }
+}
+
+// --- Blocked Users ---
+
+// This table tracks temporary user blocks imposed by administrators.
+
+Table blocked_users {
+  id integer [primary key] // Unique identifier for each block record.
+  blocker_user_id integer [ref: > users.id] // ID of the administrator who initiated the block.
+  blocked_user_id integer [ref: > users.id] // ID of the user who is blocked.
+  reason varchar(255) // Optional reason provided by the administrator for the block.
+  created_at timestamp [default: `now()`] // Timestamp of when the block was requested.
+  block_started_at timestamp [default: `now()`]  // Timestamp when the block became active.
+  blocked_until timestamp  // Timestamp when the block expires (NULL for indefinite blocks).
+}
+
+// --- Note-Taking Functionality ---
+
+// Structures for organizing and managing user files and their content.
+
+Table folders {
+  id integer [primary key] // Unique identifier for each folder.
+  user_id integer [ref: > users.id] // Owner of the folder.
+  parent_folder_id integer [ref: > folders.id] // Allows nested folders (referencing its own table).
+  name varchar(255) [not null] // Name of the folder.
+  path varchar(255) [not null, unique] // Full path of the folder, ensuring uniqueness and easy navigation.
+  created_at timestamp [default: `now()`] // Timestamp of folder creation.
+  updated_at timestamp [default: `now()`] // Timestamp of the last folder modification.
+  indexes {
+    (path) [unique] 
+  } 
+}
+
+Table files {
+  id integer [primary key] // Unique identifier for each file (document).
+  user_id integer [ref: > users.id]  // Owner of the file.
+  folder_id integer [ref: > folders.id]  // Location of the file within the folder structure.
+  title varchar(255) [not null] // Title of the file.
+  created_at timestamp [default: `now()`] // Timestamp of file creation.
+  updated_at timestamp [default: `now()`] // Timestamp of the last file modification.
+}
+
+Table papers { 
+  id integer [primary key] // Unique identifier for each "paper" (a page or section within a file).
+  file_id integer [ref: > files.id] // The file that this paper belongs to.
+  page_number integer [not null] // The order of this paper within the file, allowing for user-defined arrangements.
+  content_type varchar(255) [not null] // MIME type of the content (e.g., "text/plain", "text/markdown"), defining how it's displayed.
+  content text [not null]  // The actual content of the paper.
+  created_at timestamp [default: `now()`]  // Timestamp of paper creation.
+}
+
+// --- Version History ---
+
+// Tables for tracking changes made to files and individual papers.
+
+Table file_versions {
+  id integer [primary key] // Unique identifier for each file version.
+  file_id integer [ref: > files.id] // The file this version pertains to.
+  version integer [not null] // Version number, incrementing with each saved change.
+  created_at timestamp [default: `now()`] // Timestamp when this version was created.
+  indexes {
+    (file_id, version) [unique] // Guarantees unique version numbers for each file.
+  }
+}
+
+Table paper_versions { 
+  id integer [primary key] // Unique identifier for each paper version.
+  paper_id integer [ref: > papers.id] // The paper this version is associated with.
+  version integer [not null]  // Version number, incremented with each paper save.
+  content_type varchar(255) [not null] // MIME type of the content for this specific version.
+  content text [not null] // The content of the paper as it existed in this version.
+  created_at timestamp [default: `now()`] // Timestamp of the version creation.
+  indexes {
+    (paper_id, version) [unique] // Maintains unique version numbers for each paper.
+  }
+}
+
+
+// --- session Management ---
+
+Table refresh_tokens {
+  id integer [primary key] // Unique identifier for each refresh token.
+  user_id integer [ref: > users.id] // Reference to the user.
+  secret_part varchar(255) [not null] // Part of the secret key for refresh tokens.
+  data text [not null]
+  created_at timestamp [default: `now()`] // Timestamp of record creation.
+  expires_at timestamp // Token expiration time 
+  revoked_at timestamp // Timestamp when the token was revoked (NULL if still valid) 
+}
+
+Table access_tokens {
+  id integer [primary key] // Unique identifier for each access token.
+  user_id integer [ref: > users.id] // Reference to the user.
+  refresh_token_id integer [ref: > refresh_tokens.id] // Reference to the associated refresh token.
+  secret_part varchar(255) [not null] // Part of the secret key for access tokens.
+  created_at timestamp [default: `now()`] // Timestamp of record creation.
+  expires_at timestamp // Token expiration time 
+  revoked_at timestamp // Timestamp when the token was revoked (NULL if still valid) 
+}
+
