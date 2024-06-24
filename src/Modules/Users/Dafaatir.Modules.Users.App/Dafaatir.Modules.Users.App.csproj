@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="12.2.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Dafaatir.Modules.Users.Contracts\Dafaatir.Modules.Users.Contracts.csproj" />
+    <ProjectReference Include="..\Dafaatir.Modules.Users.Domain\Dafaatir.Modules.Users.Domain.csproj" />
+  </ItemGroup>
+</Project>

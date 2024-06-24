@@ -1,0 +1,34 @@
+ASPNETCORE_ENVIRONMENT=Development
+#ASPNETCORE_ENVIRONMENT=Production
+
+# [LOGGING]
+LOGGING__LOGLEVEL__DEFAULT=Information
+#LOGGING__LOGLEVEL__DEFAULT=Debug
+
+# [host & port]
+ASPNETCORE_URLS=https://*:5002;http://*:5001
+
+# [ssl]
+#ASPNETCORE_Kestrel__Certificates__Default__Path=/path/to/your/certificate.crt
+#ASPNETCORE_Kestrel__Certificates__Default__Password=/path/to/your/KEY
+
+# [CORS]
+ALLOW_CREDENTIALS=1  
+ALLOWED_ORIGINS=https://localhost:5002,http://localhost:5001,https://127.0.0.1:5002,http://127.0.0.1:5001
+ALLOWED_METHODS=GET,POST,PUT,DELETE
+ALLOWED_HEADERS=Content-Type,Authorization
+EXPOSED_HEADERS=X-My-Custom-Header
+
+
+
+# RESTRICT_DOMAINS you can just disable RESTRICT_DOMAINS by add # so or use star 
+RESTRICT_DOMAINS=*
+
+
+
+
+# [DATABASE]
+# sqlite, postgres, mongo
+DATABASE_DRIVER=sqlite
+DATABASE_PATH=Data Source=./dafaatir.db
+

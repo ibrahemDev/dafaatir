@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dafaatir.Modules.Auth.App\Dafaatir.Modules.Auth.App.csproj" />
+    <ProjectReference Include="..\..\..\Dafaatir.Shared\Dafaatir.Shared.csproj" />
+    <ProjectReference Include="..\Dafaatir.Modules.Auth.Contracts\Dafaatir.Modules.Auth.Contracts.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>
